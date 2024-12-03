@@ -12,6 +12,8 @@ interface AdminSkillButtonsProps {
     deleteResponseBody: any; // Adjust the type based on your actual response body structure
 }
 
+const a = 1;
+
 const AdminSkillButtons: React.FC<AdminSkillButtonsProps> = ({ skillId, handleDelete, loading, errorMessage, deleteResponseBody }) => (
     <div className="flex space-x-4">
         <EditSkillButton skillId={skillId} />

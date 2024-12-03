@@ -1,5 +1,3 @@
-import { fold as optionFold } from 'fp-ts/lib/Option';
-import { Option, none, some } from 'fp-ts/Option';
 import React, { useEffect, useState } from 'react';
 import RoleProtected from '../../../contexts/RoleProtected';
 import UseDeleteSkill from '../../../hooks/UseDeleteSkill';
@@ -16,14 +14,13 @@ interface SkillsCardProps {
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ id, skill_id, skill, description }) => {
     const { handleDelete, loadingState, deleteErrorMessage, deleteResponseBody } = UseDeleteSkill(skill_id);
-    const [userBasedContent, setUserBasedContent] = useState<Option<JSX.Element>>(none); // State to track user role
+    const [userBasedContent, setUserBasedContent] = useState<JSX.Element | null>(null); // State to track user role content
 
     // Fetch user role when component mounts
     useEffect(() => {
         const fetchUserRole = async () => {
             try {
-
-                setUserBasedContent(some(
+                setUserBasedContent(
                     <div className="flex space-x-4">
                         <RoleProtected roles={[UserTypes.Admin]}>
                             <EditSkillButton skillId={skill_id} />
@@ -35,10 +32,10 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ id, skill_id, skill, descriptio
                             />
                         </RoleProtected>
                     </div>
-                ));
+                );
             } catch (error) {
                 console.error('Error fetching user role:', error);
-                setUserBasedContent(none);
+                setUserBasedContent(null);
             }
         };
 
@@ -53,10 +50,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ id, skill_id, skill, descriptio
                     <p className="text-base text-gray-800 mb-4">{description}</p>
                 </div>
                 {/* Render User Role Content */}
-                {optionFold<JSX.Element, JSX.Element>(
-                    () => <></>, // Render nothing if the user is not an admin
-                    (content) => content // Render content if the user is an admin
-                )(userBasedContent)}
+                {userBasedContent ? userBasedContent : null}
             </div>
         </div>
     );

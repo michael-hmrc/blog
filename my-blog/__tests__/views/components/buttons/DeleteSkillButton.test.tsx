@@ -1,18 +1,17 @@
-// __tests__/DeleteSkillButton.test.tsx
-
 import { fireEvent, render, screen } from '@testing-library/react';
 import { none, some } from 'fp-ts/Option';
-import { DeleteResponseBody } from '../../../../src/models/DeleteResponseBody';
 import DeleteSkillButton from '../../../../src/views/components/buttons/DeleteSkillButton';
 
-describe('DeleteSkillButton Component', () => {
-  const mockHandleDelete = jest.fn();
 
-  beforeEach(() => {
+describe('DeleteSkillButton Component', () => {
+
+  const mockHandleDelete = jest.fn().mockResolvedValue(undefined);
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render the button and call handleDelete on submit', () => {
+  test('renders the delete button', () => {
     render(
       <DeleteSkillButton
         handleDelete={mockHandleDelete}
@@ -22,13 +21,12 @@ describe('DeleteSkillButton Component', () => {
       />
     );
 
-    const button = screen.getByText('Delete this skill');
-    fireEvent.click(button);
-
-    expect(mockHandleDelete).toHaveBeenCalled();
+    const deleteButton = screen.getByRole('button', { name: /delete this skill/i });
+    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton).not.toBeDisabled();
   });
 
-  it('should disable the button when loading is true', () => {
+  test('disables the delete button when loading is true', () => {
     render(
       <DeleteSkillButton
         handleDelete={mockHandleDelete}
@@ -38,39 +36,59 @@ describe('DeleteSkillButton Component', () => {
       />
     );
 
-    const button = screen.getByText('Delete this skill');
-    expect(button).toBeDisabled();
+    const deleteButton = screen.getByRole('button', { name: /delete this skill/i });
+    expect(deleteButton).toBeDisabled();
   });
 
-  it('should display an error message if errorMessage is provided', () => {
+  test('shows error message when errorMessage is provided', () => {
+    const errorMessage = 'An error occurred';
     render(
       <DeleteSkillButton
         handleDelete={mockHandleDelete}
         loading={none}
-        errorMessage={some('Error deleting the skill')}
+        errorMessage={some(errorMessage)}
         deleteResponseBody={none}
       />
     );
 
-    expect(screen.getByText('Error deleting the skill')).toBeInTheDocument();
+    const errorText = screen.getByText(errorMessage);
+    expect(errorText).toBeInTheDocument();
+    expect(errorText).toHaveClass('text-red-500');
   });
 
-  it('should render the delete response body if deleteResponseBody is provided', () => {
-    const mockResponseBody: DeleteResponseBody = { message: 'Skill deleted successfully' };
+  test('displays the delete response body when deleteResponseBody is provided', () => {
+    const deleteResponseBody = { message: 'Skill deleted successfully' };
+    render(
+      <DeleteSkillButton
+        handleDelete={mockHandleDelete}
+        loading={none}
+        errorMessage={none}
+        deleteResponseBody={some(deleteResponseBody)}
+      />
+    );
+
+    const responseBody = screen.getByText('Skill deleted successfully');
+    expect(responseBody).toBeInTheDocument();
+  });
+
+  test('calls handleDelete when form is submitted', () => {
 
     render(
       <DeleteSkillButton
         handleDelete={mockHandleDelete}
         loading={none}
         errorMessage={none}
-        deleteResponseBody={some(mockResponseBody)}
+        deleteResponseBody={none}
       />
     );
 
-    expect(screen.getByText('Skill deleted successfully')).toBeInTheDocument();
+    const form = screen.getByRole('button', { name: /delete this skill/i }).closest('form');
+    fireEvent.submit(form!);
+
+    expect(mockHandleDelete).toHaveBeenCalled();
   });
 
-  it('should not display anything when errorMessage and deleteResponseBody are none', () => {
+  test('does not show delete response body when none is provided', () => {
     render(
       <DeleteSkillButton
         handleDelete={mockHandleDelete}
@@ -80,7 +98,8 @@ describe('DeleteSkillButton Component', () => {
       />
     );
 
-    expect(screen.queryByText('Error deleting the skill')).not.toBeInTheDocument();
-    expect(screen.queryByText('Skill deleted successfully')).not.toBeInTheDocument();
+    const responseBody = screen.queryByText(/skill deleted successfully/i);
+    expect(responseBody).not.toBeInTheDocument();
   });
+
 });
