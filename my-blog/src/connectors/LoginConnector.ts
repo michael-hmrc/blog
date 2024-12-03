@@ -13,7 +13,6 @@ interface LoginDetails {
 
 class LoginConnector {
 
-
   async fetchProtectedData() {
     const response = await fetch('/admin/only', {
       method: 'GET',

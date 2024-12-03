@@ -1,29 +1,41 @@
-# Use Node.js as the base image
-FROM node:18
+# Stage 1: Build the application
+FROM rust:latest AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
-COPY package*.json ./
+# Copy the Cargo.toml and Cargo.lock first (to leverage Docker layer caching)
+COPY Cargo.toml Cargo.lock ./
 
-# Install the dependencies
-RUN npm install
+# Build dependencies first (this will cache the dependencies unless Cargo.toml or Cargo.lock changes)
+RUN cargo fetch
 
-# Copy all other files to the container
+# Copy the source code
 COPY . .
 
-# Ensure the environment file is in place
+# Build the project in release mode
+RUN cargo build --release
+
+# Stage 2: Create a lightweight final image
+FROM debian:buster-slim
+
+# Set up a user for security purposes (optional, but recommended)
+RUN adduser --disabled-password --gecos '' appuser
+
+# Set the working directory in the new image
+WORKDIR /app
+
+# Copy the compiled binary from the build stage
+COPY --from=builder /app/target/release/tarnish /usr/local/bin/tarnish
+
+# Set the user to non-root
+USER appuser
+
+# Copy any necessary runtime files like the .env (if needed)
 COPY .env.github-actions .env
 
-# Debug: Check the contents of the .env file
-RUN echo "Contents of .env:" && cat .env
+# Expose the port that the application will run on
+EXPOSE 8080
 
-# Build the React application
-RUN npm run build
-
-# Expose the port that the app will run on
-EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"]
+# Run the compiled binary
+CMD ["tarnish"]

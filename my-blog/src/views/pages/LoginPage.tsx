@@ -8,8 +8,7 @@ import LoginNavbarPages from '../../models/ADTs/LoginNavbarPages';
 
 const LoginPage: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen font-nunito bg-gray-100">
-      <LoginNavigationbar page={LoginNavbarPages.Login} />
+    <div className="flex flex-col min-h-screen font-nunito bg-stone-200">
       <div className="flex-grow container mx-auto p-4">
         <LoginForm />
       </div>

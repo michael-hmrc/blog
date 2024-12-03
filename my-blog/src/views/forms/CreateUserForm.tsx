@@ -1,28 +1,30 @@
 import debounce from 'lodash.debounce'; // Import debounce from lodash
 import { useCallback, useEffect, useState } from 'react';
-import { FaCheckCircle, FaSpinner, FaTimesCircle } from 'react-icons/fa'; // Icons for validation feedback
+import { FaSpinner } from 'react-icons/fa'; // Icons for validation feedback
 import CreateUserConnector from '../../connectors/CreateUserConnector';
 import RoleProtected from '../../contexts/RoleProtected';
 import { UserRoleProvider } from '../../contexts/UserRoleContext';
 import UserTypes from '../../models/ADTs/UserType';
 import { CreateUserFormData } from '../../models/UserData';
 import { checkEmailExists, checkUsernameExists } from '../../service/LoginValidationService';
+import IdGenerator from '../../utils/IdGenerator';
+import { CreateUserInputField } from './CreateUserInputField';
 
-// Utility function to generate user ID
-const generateUserId = () => {
-    const timestamp = Date.now();
-    const randomNumber = Math.floor(Math.random() * 10000);
-    return `user-${timestamp}${randomNumber}`;
-};
 
 const CreateUserForm: React.FC = () => {
-    const [formData, setFormData] = useState({
-        user_id: '',
-        userTypeState: 'viewer',
-        username: '',
-        password: '',
-        email: '',
-    });
+
+    const idGenerator = IdGenerator;
+
+    const [formData, setFormData] =
+        useState(
+            {
+                user_id: '',
+                userTypeState: 'viewer',
+                username: '',
+                password: '',
+                email: '',
+            }
+        );
 
     const { username, password, email, userTypeState } = formData;
 
@@ -94,7 +96,7 @@ const CreateUserForm: React.FC = () => {
         setErrorMessage('');
 
         const userToCreate: CreateUserFormData = {
-            user_id: generateUserId(),
+            user_id: idGenerator.generateUserId(),
             user_type: userTypeState || 'viewer',
             username,
             password,
@@ -132,36 +134,48 @@ const CreateUserForm: React.FC = () => {
 
                 {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 
-                <InputField
+                <CreateUserInputField
                     id="username"
                     label="Username"
                     type="text"
                     value={username}
-                    onChange={handleChange}
+                    onChange={
+                        (sanitizedValue: string) => {
+                            setFormData({ ...formData, username: sanitizedValue });
+                        }
+                    }
                     validationMessage={
                         usernameTaken && username ? 'Username is already taken.' : 'Username is available.'
                     }
                     isValid={!!username && !usernameTaken}
                 />
 
-                <InputField
+                <CreateUserInputField
                     id="email"
                     label="Email"
                     type="email"
                     value={email}
-                    onChange={handleChange}
+                    onChange={
+                        (sanitizedValue: string) => {
+                            setFormData({ ...formData, email: sanitizedValue });
+                        }
+                    }
                     validationMessage={
                         emailTaken && email ? 'Email is already registered.' : 'Email is available.'
                     }
                     isValid={!!email && !emailTaken}
                 />
 
-                <InputField
+                <CreateUserInputField
                     id="password"
                     label="Password"
                     type="password"
                     value={password}
-                    onChange={handleChange}
+                    onChange={
+                        (sanitizedValue: string) => {
+                            setFormData({ ...formData, password: sanitizedValue });
+                        }
+                    }
                 />
 
                 <RoleProtected roles={[UserTypes.Admin]}>
@@ -199,54 +213,6 @@ const CreateUserForm: React.FC = () => {
         </UserRoleProvider>
     );
 };
-
-// Reusable input field component with validation feedback
-interface InputFieldProps {
-    id: string;
-    label: string;
-    type: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    validationMessage?: string;
-    isValid?: boolean;
-}
-
-const InputField: React.FC<InputFieldProps> = ({
-    id,
-    label,
-    type,
-    value,
-    onChange,
-    validationMessage,
-    isValid
-}) => (
-    <div className="mb-6 relative">
-        <label htmlFor={id} className="text-lg block text-gray-800 mb-1">{label}:</label>
-        <input
-            id={id}
-            type={type}
-            value={value}
-            onChange={onChange}
-            className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200
-                ${!value ? 'border-blue-500' : ''}  // Apply blue border when field is empty
-                ${isValid === false && value ? 'border-red-500 focus:ring-red-300' : ''}
-                ${isValid === true ? 'border-green-500 focus:ring-green-300' : ''}
-            `}
-        />
-        {value && validationMessage && (
-            <div className="text-sm mt-1 flex items-center space-x-2">
-                {isValid ? (
-                    <FaCheckCircle className="text-green-500" />
-                ) : (
-                    <FaTimesCircle className="text-red-500" />
-                )}
-                <span className={isValid ? 'text-green-500' : 'text-red-500'}>
-                    {validationMessage}
-                </span>
-            </div>
-        )}
-    </div>
-);
 
 
 export default CreateUserForm;

@@ -1,11 +1,7 @@
-import { Either, fold } from 'fp-ts/lib/Either';
-import { fold as optionFold } from 'fp-ts/lib/Option';
-import { Option, none, some } from 'fp-ts/Option';
 import React, { useEffect, useState } from 'react';
+import RoleProtected from '../../../contexts/RoleProtected';
 import UseDeleteSkill from '../../../hooks/UseDeleteSkill';
 import UserTypes from '../../../models/ADTs/UserType';
-import UserTypeErrors from '../../../models/ADTs/UserTypeErrors';
-import AuthService from '../../../service/AuthService';
 import DeleteSkillButton from '../buttons/DeleteSkillButton';
 import EditSkillButton from '../buttons/EditSkillButton';
 
@@ -18,37 +14,28 @@ interface SkillsCardProps {
 
 const SkillsCard: React.FC<SkillsCardProps> = ({ id, skill_id, skill, description }) => {
     const { handleDelete, loadingState, deleteErrorMessage, deleteResponseBody } = UseDeleteSkill(skill_id);
-    const [userBasedContent, setUserBasedContent] = useState<Option<JSX.Element>>(none); // State to track user role
+    const [userBasedContent, setUserBasedContent] = useState<JSX.Element | null>(null); // State to track user role content
 
     // Fetch user role when component mounts
     useEffect(() => {
         const fetchUserRole = async () => {
             try {
-                const result: Either<UserTypeErrors, UserTypes> = await AuthService.getRole();
-
-                fold<UserTypeErrors, UserTypes, void>(
-                    () => setUserBasedContent(none), // Handle error cases, including unknown user type
-                    (userType) => {
-                        if (userType === UserTypes.Admin) {
-                            setUserBasedContent(some(
-                                <div className="flex space-x-4">
-                                    <EditSkillButton skillId={skill_id} />
-                                    <DeleteSkillButton
-                                        handleDelete={handleDelete}
-                                        loading={loadingState}
-                                        errorMessage={deleteErrorMessage}
-                                        deleteResponseBody={deleteResponseBody}
-                                    />
-                                </div>
-                            ));
-                        } else {
-                            setUserBasedContent(none); // Hide content for non-admin users (e.g., Viewer)
-                        }
-                    }
-                )(result);
+                setUserBasedContent(
+                    <div className="flex space-x-4">
+                        <RoleProtected roles={[UserTypes.Admin]}>
+                            <EditSkillButton skillId={skill_id} />
+                            <DeleteSkillButton
+                                handleDelete={handleDelete}
+                                loading={loadingState}
+                                errorMessage={deleteErrorMessage}
+                                deleteResponseBody={deleteResponseBody}
+                            />
+                        </RoleProtected>
+                    </div>
+                );
             } catch (error) {
                 console.error('Error fetching user role:', error);
-                setUserBasedContent(none);
+                setUserBasedContent(null);
             }
         };
 
@@ -63,10 +50,7 @@ const SkillsCard: React.FC<SkillsCardProps> = ({ id, skill_id, skill, descriptio
                     <p className="text-base text-gray-800 mb-4">{description}</p>
                 </div>
                 {/* Render User Role Content */}
-                {optionFold<JSX.Element, JSX.Element>(
-                    () => <></>, // Render nothing if the user is not an admin
-                    (content) => content // Render content if the user is an admin
-                )(userBasedContent)}
+                {userBasedContent ? userBasedContent : null}
             </div>
         </div>
     );

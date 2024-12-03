@@ -7,11 +7,6 @@ jest.mock('../../../src/views/components/navigation_bar/NavBar', () => () => <di
 jest.mock('../../../src/views/components/Copyright', () => () => <div data-testid="copyright">© 2024 Your Company</div>);
 
 describe('AboutPage Component', () => {
-    it('should render the Navbar component', () => {
-      render(<AboutPage />);
-      const navbar = screen.getByTestId('navbar');
-      expect(navbar).toBeInTheDocument();
-    });
   
     it('should render all paragraphs with the correct text', () => {
       render(<AboutPage />);

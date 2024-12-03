@@ -1,142 +1,123 @@
-// LandingPage.test.tsx
-
-import { fireEvent, render, screen } from '@testing-library/react';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { PostData } from '../../../src/models/PostData';
-import LandingPage from '../../../src/views/pages/LandingPage';
+import { filterPosts, paginatePosts, renderBlogList } from '../../../src/views/pages/LandingPage';
 
-// Create a mock instance of axios
-const mock = new MockAdapter(axios);
+describe('filterPosts', () => {
+  const posts: PostData[] = [
+    { id: 1, post_id: "post-1", title: 'React Basics', body: 'Introduction to React', created_at: new Date(), updated_at: new Date() },
+    { id: 2, post_id: "post-2", title: 'Advanced React', body: 'Deep dive into React', created_at: new Date(), updated_at: new Date() },
+  ];
 
-const mockPosts: PostData[] = [
-  {
-    id: 1,
-    post_id: 'First Post',
-    title: 'First Post Title',
-    body: 'This is the first post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: 2,
-    post_id: 'Second Post',
-    title: 'Second Post Title',
-    body: 'This is the second post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: 3,
-    post_id: 'Third Post',
-    title: 'Third Post Title',
-    body: 'This is the third post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: 4,
-    post_id: 'Fourth Post',
-    title: 'Fourth Post Title',
-    body: 'This is the fourth post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: 5,
-    post_id: 'Fifth Post',
-    title: 'Fifth Post Title',
-    body: 'This is the fifth post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-  {
-    id: 6,
-    post_id: 'Sixth Post',
-    title: 'Sixth Post Title',
-    body: 'This is the sixth post.',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
-];
-
-describe('LandingPage', () => {
-  // Reset mock after each test to ensure no interference
-  afterEach(() => {
-    mock.reset();
+  it('should return all posts when query is empty', () => {
+    const filteredPosts = filterPosts(posts, '');
+    expect(filteredPosts).toEqual(posts);
   });
 
-  test('renders without crashing', () => {
-    render(
+  it('should return filtered posts based on query', () => {
+    const filteredPosts = filterPosts(posts, 'advanced');
+    expect(filteredPosts.length).toBe(1);
+    expect(filteredPosts[0].title).toBe('Advanced React');
+  });
+
+  // New Test: Case-insensitive query matching
+  it('should return filtered posts with case-insensitive matching', () => {
+    const filteredPosts = filterPosts(posts, 'react');
+    expect(filteredPosts.length).toBe(2);
+    expect(filteredPosts[0].title).toBe('React Basics');
+  });
+
+  // New Test: No match found
+  it('should return an empty array when no posts match the query', () => {
+    const filteredPosts = filterPosts(posts, 'non-existent');
+    expect(filteredPosts.length).toBe(0);
+  });
+});
+
+describe('paginatePosts', () => {
+  const posts: PostData[] = Array.from({ length: 10 }, (_, i) => ({
+    id: i + 1,
+    post_id: `post-${i + 1}`,
+    title: `Post ${i + 1}`,
+    body: `This is post ${i + 1}`,
+    created_at: new Date(),
+    updated_at: new Date(),
+  }));
+
+  it('should return correct posts for the first page', () => {
+    const paginatedPosts = paginatePosts(posts, 1, 5);
+    expect(paginatedPosts.length).toBe(5);
+    expect(paginatedPosts[0].title).toBe('Post 1');
+  });
+
+  it('should return correct posts for the second page', () => {
+    const paginatedPosts = paginatePosts(posts, 2, 5);
+    expect(paginatedPosts.length).toBe(5);
+    expect(paginatedPosts[0].title).toBe('Post 6');
+  });
+
+  // New Test: Pagination with fewer posts than page limit
+  it('should return all posts when total posts are fewer than postsPerPage', () => {
+    const smallPosts = posts.slice(0, 3); // Only 3 posts
+    const paginatedPosts = paginatePosts(smallPosts, 1, 5);
+    expect(paginatedPosts.length).toBe(3);
+  });
+
+  // New Test: Out of bounds page number
+  it('should return an empty array if page number exceeds total pages', () => {
+    const paginatedPosts = paginatePosts(posts, 3, 5); // There are only 2 pages, page 3 is out of bounds
+    expect(paginatedPosts.length).toBe(0);
+  });
+});
+
+describe('renderBlogList', () => {
+  const posts: PostData[] = [
+    { id: 1, post_id: "post-1", title: 'React Basics', body: 'Introduction to React', created_at: new Date(), updated_at: new Date() },
+  ];
+
+  it('should render no posts message when no posts are available', () => {
+    const { getByText } = render(renderBlogList([]));
+    expect(getByText('No blog posts found.')).toBeInTheDocument();
+  });
+
+  it('should render blog list when posts are available', () => {
+    const { getByText } = render(
       <MemoryRouter>
-        <LandingPage posts={[]} errorMessage="" />
+        {renderBlogList(posts)}
       </MemoryRouter>
     );
-    expect(screen.getByText(/No blog posts found./i)).toBeInTheDocument();
+    expect(getByText('React Basics')).toBeInTheDocument();
   });
 
-  test('displays a list of blog posts', () => {
-    render(
+  // New Test: Rendering multiple posts
+  it('should render multiple posts when they are available', () => {
+    const multiplePosts: PostData[] = [
+      { id: 1, post_id: "post-1", title: 'React Basics', body: 'Introduction to React', created_at: new Date(), updated_at: new Date() },
+      { id: 2, post_id: "post-2", title: 'Advanced React', body: 'Deep dive into React', created_at: new Date(), updated_at: new Date() },
+    ];
+
+    const { getByText } = render(
       <MemoryRouter>
-        <LandingPage posts={mockPosts} errorMessage="" />
-      </MemoryRouter>
-    );
-    expect(screen.getByText(/First Post Title/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fifth Post Title/i)).toBeInTheDocument();
-  });
-
-  test('filters blog posts by search query', () => {
-    render(
-      <MemoryRouter>
-        <LandingPage posts={mockPosts} errorMessage="" />
-      </MemoryRouter>
-    );
-
-    // Initially, there should be 6 posts
-    expect(screen.getAllByText(/Title/i)).toHaveLength(5);
-
-    // Filter by search query
-    fireEvent.change(screen.getByPlaceholderText(/Search blog posts.../i), {
-      target: { value: 'First' },
-    });
-
-    expect(screen.getByText(/First Post Title/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Second Post Title/i)).not.toBeInTheDocument();
-  });
-
-  test('displays no posts message when no posts match the search query', () => {
-    render(
-      <MemoryRouter>
-        <LandingPage posts={mockPosts} errorMessage="" />
+        {renderBlogList(multiplePosts)}
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText(/Search blog posts.../i), {
-      target: { value: 'Nonexistent Post' },
-    });
-
-    expect(screen.getByText(/No blog posts found./i)).toBeInTheDocument();
+    expect(getByText('React Basics')).toBeInTheDocument();
+    expect(getByText('Advanced React')).toBeInTheDocument();
   });
 
-  test('paginates through posts', () => {
-    render(
+  // New Test: Empty titles and bodies handling
+  it('should render posts with empty title and body gracefully', () => {
+    const postNoContent: PostData[] = [
+      { id: 1, post_id: "post-1", title: '', body: '', created_at: new Date(), updated_at: new Date() },
+    ];
+
+    const { container } = render(
       <MemoryRouter>
-        <LandingPage posts={mockPosts} errorMessage="" />
+        {renderBlogList(postNoContent)}
       </MemoryRouter>
     );
 
-    // Initially, the first 5 posts should be visible
-    expect(screen.getByText('First Post Title')).toBeInTheDocument();
-    expect(screen.getByText('Fifth Post Title')).toBeInTheDocument();
-    expect(screen.queryByText('Sixth Post Title')).not.toBeInTheDocument();
-
-
-    // TODO: Fix or remove this
-    fireEvent.click(screen.getByTestId('pagination-button-2'));
-
-    // The sixth post should now be visible
-    expect(screen.getByText('Sixth Post Title')).toBeInTheDocument();
-    expect(screen.queryByText('First Post Title')).not.toBeInTheDocument();
+    expect(container.textContent).toContain('Read more');
   });
 });

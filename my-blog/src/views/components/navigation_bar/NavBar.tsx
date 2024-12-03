@@ -2,6 +2,7 @@ import { fold } from 'fp-ts/lib/Either';
 import { none, Option, some } from 'fp-ts/lib/Option';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import RoleProtected from '../../../contexts/RoleProtected';
 import { UserRoleProvider } from '../../../contexts/UserRoleContext';
 import NavbarPages from '../../../models/ADTs/NavbarPages';
@@ -13,6 +14,7 @@ import LogoutButton from '../buttons/LogoutButton';
 interface NavbarProps {
   page?: NavbarPages;
 }
+
 
 // Toggle Menu Logic
 export const useToggleMenu = () => {
@@ -26,8 +28,8 @@ export const generateLinkClassName = (page: NavbarPages, navbarPages: NavbarPage
   const baseClasses = 'transition-colors duration-300';
   const activeClasses = 'bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 animate-bounce';
   return page === navbarPages
-    ? `text-3xl text-transparent ${activeClasses} hover:text-pink-200`
-    : `text-black ${baseClasses} hover:text-gray-500`;
+    ? `text-2xl text-transparent ${activeClasses} hover:text-pink-200`
+    : `text-lg text-black ${baseClasses} hover:text-gray-500`;
 };
 
 // Fetch User Role and Generate Role-specific Content
@@ -50,24 +52,31 @@ export const fetchUserRole = async (setUserBasedContent: React.Dispatch<Option<J
     }
   )(result);
 };
-
-
 const Navbar: React.FC<NavbarProps> = ({ page = NavbarPages.Default }) => {
+  const { isLoggedIn, logout } = useAuth();
   const { isOpen, toggleMenu } = useToggleMenu();
   const [userBasedContent, setUserBasedContent] = useState<Option<JSX.Element>>(none);
+
+  // State to manage dropdown visibility
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Fetch user role when the component mounts
   useEffect(() => {
     fetchUserRole(setUserBasedContent);
-  }, []);
+  }, [isLoggedIn]);
+
+  // Toggle dropdown menu
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   return (
     <UserRoleProvider>
-      <nav className="bg-gray-100 p-4 fixed w-full z-50 border-b-2 border-gray-300">
-        <div className="container mx-auto flex justify-between items-center">
+      {/* Main Navbar */}
+      {/* Removed fixed height for dynamic adjustment */}
+      <nav className="bg-gray-100 p-4 fixed w-full z-50 border-b-2 border-gray-200">
+        <div className="container mx-auto flex justify-between items-start md:items-center"> {/* Align with items-start to support stacking */}
           {/* Home Link */}
           <div className="flex items-center space-x-4">
-            <Link id="home" to="/" className={generateLinkClassName(page, NavbarPages.Home)}>
+            <Link id="home" to="/" className={`${generateLinkClassName(page, NavbarPages.Home)}`}>
               Home
             </Link>
           </div>
@@ -89,36 +98,100 @@ const Navbar: React.FC<NavbarProps> = ({ page = NavbarPages.Default }) => {
           </div>
 
           {/* Navigation Links */}
-          <div className={`md:flex items-center md:space-x-6 ${isOpen ? 'block' : 'hidden'} md:block absolute md:static right-0 top-16 md:top-auto bg-true-blue md:bg-transparent p-4 md:p-0 w-64 md:w-auto shadow-md md:shadow-none rounded-lg md:rounded-none transition-all duration-300`}>
+          {/* Removed height dependency and stacked with flex-col */}
+          <div className={`md:flex md:flex-row md:space-x-6 ${isOpen ? 'block' : 'hidden'} md:block absolute md:static right-0 top-16 md:top-auto bg-true-blue md:bg-transparent p-4 md:p-0 w-64 md:w-auto shadow-md md:shadow-none rounded-lg md:rounded-none transition-all duration-300`}>
             <div className="flex flex-col md:flex-row md:items-center md:space-x-6 space-y-4 md:space-y-0">
               {/* Static Navigation Links */}
-              <Link id="about-me" to="/about" className={generateLinkClassName(page, NavbarPages.About)}>About Me</Link>
-              <Link id="contact" to="/contact" className={generateLinkClassName(page, NavbarPages.Contact)}>Contact</Link>
-              <Link id="interests" to="/interests" className={generateLinkClassName(page, NavbarPages.Interests)}>Interests</Link>
-              <Link id="skills" to="/skills" className={generateLinkClassName(page, NavbarPages.Skills)}>Skills</Link>
-              <Link id="worklog-nav" to="/worklog" className={generateLinkClassName(page, NavbarPages.Worklog)}>WorkLog</Link>
+              <Link id="about-me" to="/about" className={`text-lg ${generateLinkClassName(page, NavbarPages.About)}`}>
+                About Me
+              </Link>
+              <Link id="contact" to="/contact" className={`text-lg ${generateLinkClassName(page, NavbarPages.Contact)}`}>
+                Contact
+              </Link>
+              <Link id="skills" to="/skills" className={`text-lg ${generateLinkClassName(page, NavbarPages.Skills)}`}>
+                Skills
+              </Link>
+              <Link id="worklog-nav" to="/worklog" className={`text-lg ${generateLinkClassName(page, NavbarPages.Worklog)}`}>
+                WorkLog
+              </Link>
 
-              {/* Admin-specific links */}
-              <RoleProtected roles={[UserTypes.Admin]}>
-                <Link id="assets" to="/assets" className={generateLinkClassName(page, NavbarPages.Assets)}>Assets</Link>
-                <div className="flex flex-col space-y-2">
-                  <Link id="create-blog-post" to="/create-blog-post" className="bg-green-500 text-white text-lg font-semibold py-2 px-5 rounded hover:bg-green-400 hover:text-gray-700 transition-colors duration-300 flex items-center justify-center">
-                    Create Blog Post
+              {/* Login Link */}
+              <Link id="login-nav" to="/login" className={`text-lg ${generateLinkClassName(page, NavbarPages.Login)}`}>
+                Login
+              </Link>
+
+              {userBasedContent && userBasedContent._tag === 'Some' && userBasedContent.value}
+
+              {/* Stack the buttons vertically */}
+              <div className='flex flex-col space-y-4'>
+                <RoleProtected roles={[UserTypes.Admin]}>
+                  <Link
+                    id="login-nav" to="/create-blog-post"
+                    className={`bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors`}
+                  >
+                    Create blog post
                   </Link>
+                </RoleProtected>
+
+                {/* Logout Button */}
+                <RoleProtected roles={[UserTypes.Admin, UserTypes.Viewer]}>
                   <LogoutButton />
+                </RoleProtected>
+              </div>
+
+              <RoleProtected roles={[UserTypes.Admin]}>
+                {/* Assets Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={toggleDropdown}
+                    className="text-lg text-black hover:text-gray-500 focus:outline-none"
+                  >
+                    Assets
+                    <svg
+                      className={`w-4 h-4 ml-1 inline-block transform ${isDropdownOpen ? 'rotate-180' : 'rotate-0'}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                      <Link to="/assets/buttons" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Buttons
+                      </Link>
+                      <Link to="/assets/images" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Images
+                      </Link>
+                      <Link to="/assets/videos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Videos
+                      </Link>
+                      <Link to="/assets/loading" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Loading
+                      </Link>
+                      <Link to="/assets/forms" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Forms
+                      </Link>
+                      <Link to="/assets/checkboxes" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Checkboxes
+                      </Link>
+                      <Link to="/assets/radios" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Radios
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </RoleProtected>
 
-              {/* Login Link */}
-              <Link id="login-nav" to="/login" className={generateLinkClassName(page, NavbarPages.Login)}>Login</Link>
-
-              {/* User-specific content */}
-              {userBasedContent && userBasedContent._tag === 'Some' && userBasedContent.value}
             </div>
-          </div>
-        </div>
-      </nav>
-    </UserRoleProvider>
+          </div >
+        </div >
+      </nav >
+    </UserRoleProvider >
   );
 };
 

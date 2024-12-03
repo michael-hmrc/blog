@@ -1,24 +1,24 @@
 import React from 'react';
 
-
-interface SkillsPaginationProps {
-  skillsPerPage: number;
-  totalSkills: number;
+interface PaginationProps {
+  postsPerPage: number;
+  totalPosts: number;
   paginate: (pageNumber: number) => void;
   currentPage: number; // Add currentPage prop to track the active page
-
 }
 
-const SkillsPagination: React.FC<SkillsPaginationProps> = ({ skillsPerPage, totalSkills, paginate, currentPage }) => {
+
+const BlogPostPagination: React.FC<PaginationProps> = ({ postsPerPage, totalPosts, paginate, currentPage }) => {
+
 
   const pageNumbers = [];
 
   // Don't show pagination if there are no worklogs
-  if (totalSkills === 0) {
+  if (totalPosts === 0) {
     return null;
   }
 
-  for (let i = 1; i <= Math.ceil(totalSkills / skillsPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
     pageNumbers.push(i);
   }
 
@@ -29,6 +29,7 @@ const SkillsPagination: React.FC<SkillsPaginationProps> = ({ skillsPerPage, tota
         {/* Previous Button */}
         <li>
           <button
+            id="previous"
             onClick={() => paginate(currentPage - 1)}
             className={`px-2 py-1 text-base rounded text-gray-800 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed line-through' : ''} hover:bg-blue-200`}
             disabled={currentPage === 1}
@@ -37,10 +38,12 @@ const SkillsPagination: React.FC<SkillsPaginationProps> = ({ skillsPerPage, tota
           </button>
         </li>
 
-           {/* Page Numbers */}
-           {pageNumbers.map((number) => (
-          <li key={number}>
+        {/* Page Numbers */}
+        {pageNumbers.map((number) => (
+          <li key={number} data-testid="blog-post-pages">
             <button
+              data-testid={`page-buttons`}
+              id={`page-${number}`}
               onClick={() => paginate(number)}
               className={`px-2 py-1 text-base rounded ${currentPage === number ? 'text-black animate-bounce' : 'text-gray-500 hover:bg-blue-200'}`}
             >
@@ -53,6 +56,7 @@ const SkillsPagination: React.FC<SkillsPaginationProps> = ({ skillsPerPage, tota
         {/* Next Button */}
         <li>
           <button
+            id="next"
             onClick={() => paginate(currentPage + 1)}
             className={`px-2 py-1 text-base rounded text-gray-800 ${currentPage === pageNumbers.length ? 'opacity-50 cursor-not-allowed line-through' : ''} hover:bg-blue-200`}
             disabled={currentPage === pageNumbers.length}
@@ -65,4 +69,4 @@ const SkillsPagination: React.FC<SkillsPaginationProps> = ({ skillsPerPage, tota
   );
 };
 
-export default SkillsPagination;
+export default BlogPostPagination;

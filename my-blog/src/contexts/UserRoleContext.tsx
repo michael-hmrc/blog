@@ -13,7 +13,8 @@ interface UserRoleContextType {
 }
 
 // Create a context
-const UserRoleContext = createContext<UserRoleContextType | undefined>(undefined);
+const UserRoleContext =
+  createContext<UserRoleContextType | undefined>(undefined);
 
 // Hook to use the UserRoleContext
 export const useUserRole = () => {

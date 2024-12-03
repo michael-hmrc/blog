@@ -10,13 +10,8 @@ const AssetsNavigationBar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-true-blue p-2 shadow-lg">
+    <nav className="bg-true-blue p-2 shadow-lg w-full p-4 fixed top-16 md:top-20 z-40">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <Link id="home" to="/" className="text-white text-3xl hover:text-gray-300">
-            Home
-          </Link>
-        </div>
         <div className="block md:hidden">
           <MobileNavBar isOpen={isOpen} toggleMenu={toggleMenu} />
         </div>

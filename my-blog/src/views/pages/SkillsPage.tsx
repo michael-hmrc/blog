@@ -3,11 +3,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import RoleProtected from '../../contexts/RoleProtected';
 import { UserRoleProvider } from '../../contexts/UserRoleContext';
-import NavbarPages from '../../models/ADTs/NavbarPages';
 import UserTypes from '../../models/ADTs/UserType';
 import { SkillData } from '../../models/SkillData';
 import Copyright from '../components/Copyright';
-import Navbar from '../components/navigation_bar/NavBar';
 import SkillList from '../components/skills/SkillsList';
 import SkillsPagination from '../components/skills/SkillsPagination';
 import Spacer from '../components/Spacer';
@@ -34,11 +32,9 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ skills, errorMessage }) => {
   return (
     <UserRoleProvider>
       <div className="flex flex-col min-h-screen font-nunito bg-gradient-to-r from-green-200 to-orange-300">
-        <Navbar page={NavbarPages.Skills} />
 
-        {/* <H1 id={"skills"} message={messages.about.title} className={""} /> */}
         <Spacer size={"p-20"} />
-
+        
         <div className="flex flex-col flex-grow container mx-auto">
 
           <div className="flex-grow">

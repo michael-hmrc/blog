@@ -13,12 +13,6 @@ describe('CreateBlogPost Component', () => {
       jest.clearAllMocks();
     });
   
-    it('should render the Navbar component', () => {
-      render(<CreateBlogPost />);
-      const navbar = screen.getByTestId('navbar');
-      expect(navbar).toBeInTheDocument();
-    });
-  
     it('should render the H1 title with the correct message', () => {
       render(<CreateBlogPost />);
       const title = screen.getByRole('heading', { name: /Create a new blog post/i });

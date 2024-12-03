@@ -11,7 +11,7 @@ describe('AssetsNavigationBar component', () => {
             </Router>
         );
 
-        const homeLink = screen.getByText('Home');
+        // const homeLink = screen.getByText('Home');
         const buttonsLink = screen.getByText('Buttons');
         const imagesLink = screen.getByText('Images');
         const loadingLink = screen.getByText('Loading');
@@ -20,7 +20,7 @@ describe('AssetsNavigationBar component', () => {
         const checkboxesLink = screen.getByText('Checkboxes');
         const radiosLink = screen.getByText('Radios');
 
-        expect(homeLink).toBeInTheDocument();
+        // expect(homeLink).toBeInTheDocument();
         expect(buttonsLink).toBeInTheDocument();
         expect(imagesLink).toBeInTheDocument();
         expect(loadingLink).toBeInTheDocument();

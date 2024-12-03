@@ -1,4 +1,3 @@
-[]
 class UserTypeErrors {
 
   private constructor(public readonly name: string) { }

@@ -1,119 +1,126 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import SkillsCard from '../../../src/views/components/skills/SkillsCard';
-import AuthService from '../../../src/service/AuthService';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import RoleProtected from '../../../src/contexts/RoleProtected';
 import UseDeleteSkill from '../../../src/hooks/UseDeleteSkill';
-import { some, none } from 'fp-ts/Option';
-import * as E from 'fp-ts/Either';
-import UserTypes from '../../../src/models/ADTs/UserType';
-import UserTypeErrors from '../../../src/models/ADTs/UserTypeErrors';
+import SkillsCard from '../../../src/views/components/skills/SkillsCard';
 
-// Mock necessary modules
-jest.mock('../../../src/service/AuthService');
+// Mock dependencies
 jest.mock('../../../src/hooks/UseDeleteSkill');
+jest.mock('../../../src/contexts/RoleProtected', () => ({ children }) => <div>{children}</div>);
 
-jest.mock('../../../src/views/components/buttons/DeleteSkillButton', () => ({ handleDelete }) => (
-  <button onClick={handleDelete}>Delete Skill</button>
-));
+describe('SkillsCard', () => {
+  const mockDeleteSkill = jest.fn();
+  const mockSkill = {
+    id: 1,
+    skill_id: '123',
+    skill: 'JavaScript',
+    description: 'A programming language',
+  };
 
-jest.mock('../../../src/views/components/buttons/EditSkillButton', () => ({ skillId }) => (
-  <button>Edit Skill</button>
-));
-
-describe('SkillsCard Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    // Mock UseDeleteSkill hook to return predefined values
+    UseDeleteSkill.mockReturnValue({
+      handleDelete: mockDeleteSkill,
+      loadingState: false,
+      deleteErrorMessage: '',
+      deleteResponseBody: null,
+    });
   });
 
-  const mockHandleDelete = jest.fn();
-
-  it('renders skill and description correctly', () => {
-    (UseDeleteSkill as jest.Mock).mockReturnValue({
-      handleDelete: mockHandleDelete,
-      loadingState: none,
-      deleteErrorMessage: none,
-      deleteResponseBody: none,
-    });
-
-    render(<SkillsCard id={1} skill_id="123" skill="React" description="A JavaScript library for building user interfaces." />);
-
-    // Ensure the skill name and description are rendered correctly
-    expect(screen.getByText('React')).toBeInTheDocument();
-    expect(screen.getByText('A JavaScript library for building user interfaces.')).toBeInTheDocument();
+  it('renders the skill and description correctly', () => {
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
+    // Check that the skill name and description are rendered
+    expect(screen.getByText('JavaScript')).toBeInTheDocument();
+    expect(screen.getByText('A programming language')).toBeInTheDocument();
   });
 
-  it('renders admin buttons when user role is Admin', async () => {
-    (AuthService.getRole as jest.Mock).mockResolvedValue(E.right(UserTypes.Admin));
+  it('renders Edit and Delete buttons for admin role', async () => {
+    // Mock RoleProtected to always render children
+    jest.spyOn(RoleProtected, 'render').mockImplementation(({ children }) => children);
 
-    (UseDeleteSkill as jest.Mock).mockReturnValue({
-      handleDelete: mockHandleDelete,
-      loadingState: some(false),
-      deleteErrorMessage: none,
-      deleteResponseBody: none,
-    });
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
 
-    render(<SkillsCard id={1} skill_id="123" skill="React" description="A JavaScript library for building user interfaces." />);
-
-    // Ensure the async role fetching is completed and buttons are rendered
+    // Check for the presence of the Edit and Delete buttons
     await waitFor(() => {
-      expect(screen.getByText('Edit Skill')).toBeInTheDocument();
-      expect(screen.getByText('Delete Skill')).toBeInTheDocument();
+      expect(screen.getByText('Edit')).toBeInTheDocument();
+      expect(screen.getByText('Delete')).toBeInTheDocument();
     });
   });
 
-  it('does not render admin buttons when user role is Viewer', async () => {
-    (AuthService.getRole as jest.Mock).mockResolvedValue(E.right(UserTypes.Viewer));
+  it('calls handleDelete when the Delete button is clicked', async () => {
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
 
-    (UseDeleteSkill as jest.Mock).mockReturnValue({
-      handleDelete: mockHandleDelete,
-      loadingState: some(false),
-      deleteErrorMessage: none,
-      deleteResponseBody: none,
-    });
-
-    render(<SkillsCard id={1} skill_id="123" skill="React" description="A JavaScript library for building user interfaces." />);
-
-    // Ensure the buttons are not rendered for Viewer
-    await waitFor(() => {
-      expect(screen.queryByText('Edit Skill')).not.toBeInTheDocument();
-      expect(screen.queryByText('Delete Skill')).not.toBeInTheDocument();
-    });
-  });
-
-  it('handles unknown user type or error correctly', async () => {
-    (AuthService.getRole as jest.Mock).mockResolvedValue(E.left(UserTypeErrors.UnknownUserType));
-
-    (UseDeleteSkill as jest.Mock).mockReturnValue({
-      handleDelete: mockHandleDelete,
-      loadingState: some(false),
-      deleteErrorMessage: none,
-      deleteResponseBody: none,
-    });
-
-    render(<SkillsCard id={1} skill_id="123" skill="React" description="A JavaScript library for building user interfaces." />);
-
-    // Ensure no buttons are rendered for unknown user type
-    await waitFor(() => {
-      expect(screen.queryByText('Edit Skill')).not.toBeInTheDocument();
-      expect(screen.queryByText('Delete Skill')).not.toBeInTheDocument();
-    });
-  });
-
-  it('calls delete handler when Delete button is clicked', async () => {
-    (AuthService.getRole as jest.Mock).mockResolvedValue(E.right(UserTypes.Admin));
-
-    (UseDeleteSkill as jest.Mock).mockReturnValue({
-      handleDelete: mockHandleDelete,
-      loadingState: some(false),
-      deleteErrorMessage: none,
-      deleteResponseBody: none,
-    });
-
-    render(<SkillsCard id={1} skill_id="123" skill="React" description="A JavaScript library for building user interfaces." />);
-
-    const deleteButton = await screen.findByText('Delete Skill');
+    // Simulate a click on the Delete button
+    const deleteButton = await screen.findByText('Delete');
     fireEvent.click(deleteButton);
 
-    // Ensure the delete handler is called when the button is clicked
-    expect(mockHandleDelete).toHaveBeenCalledTimes(1);
+    // Check if the handleDelete function was called
+    expect(mockDeleteSkill).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles loading state correctly on Delete button', () => {
+    // Simulate a loading state
+    UseDeleteSkill.mockReturnValue({
+      handleDelete: mockDeleteSkill,
+      loadingState: true,
+      deleteErrorMessage: '',
+      deleteResponseBody: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
+
+    // Check if the Delete button shows a loading state (e.g., spinner or disabled)
+    const deleteButton = screen.getByText('Delete');
+    expect(deleteButton).toBeDisabled();
+  });
+
+  it('displays an error message if delete fails', () => {
+    const errorMessage = 'Failed to delete skill';
+
+    // Mock UseDeleteSkill with an error message
+    UseDeleteSkill.mockReturnValue({
+      handleDelete: mockDeleteSkill,
+      loadingState: false,
+      deleteErrorMessage: errorMessage,
+      deleteResponseBody: null,
+    });
+
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
+
+    // Check if the error message is displayed
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+  });
+
+  it('handles the absence of user-based content gracefully', () => {
+    // If userBasedContent is null, nothing should break
+    render(
+      <MemoryRouter>
+        <SkillsCard {...mockSkill} />
+      </MemoryRouter>
+    );
+
+    // There shouldn't be any buttons or additional content rendered
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument();
+    expect(screen.queryByText('Delete')).not.toBeInTheDocument();
   });
 });

@@ -103,7 +103,6 @@ const PrivacyPolicy: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen font-nunito bg-gray-100">
-      <Navbar />
       <div className="flex-grow container mx-auto p-4">
         <div className='text-center'>
           <H1 id={"privacy-policy"} message={"Privacy Policy"} className={""} />

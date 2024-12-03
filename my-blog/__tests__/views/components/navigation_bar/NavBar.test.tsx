@@ -3,9 +3,9 @@ import { left, right } from 'fp-ts/lib/Either';
 import { none, some } from 'fp-ts/lib/Option';
 import NavbarPages from '../../../../src/models/ADTs/NavbarPages';
 import UserTypes from '../../../../src/models/ADTs/UserType';
+import UserTypeErrors from '../../../../src/models/ADTs/UserTypeErrors';
 import AuthService from '../../../../src/service/AuthService';
 import { fetchUserRole, generateLinkClassName, useToggleMenu } from '../../../../src/views/components/navigation_bar/NavBar';
-import UserTypeErrors from '../../../../src/models/ADTs/UserTypeErrors';
 
 
 jest.mock('../../../../src/service/AuthService');
@@ -16,7 +16,7 @@ describe('Navbar utility functions', () => {
   describe('generateLinkClassName', () => {
     it('generates correct class names for active links', () => {
       const className = generateLinkClassName(NavbarPages.Home, NavbarPages.Home);
-      expect(className).toContain('text-3xl text-transparent');
+      expect(className).toContain('text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 animate-bounce hover:text-pink-200');
       expect(className).toContain('animate-bounce');
     });
 
@@ -29,7 +29,7 @@ describe('Navbar utility functions', () => {
     it('returns different styles for Home and other links', () => {
       const homeClassName = generateLinkClassName(NavbarPages.Home, NavbarPages.Home);
       const aboutClassName = generateLinkClassName(NavbarPages.About, NavbarPages.About);
-      expect(homeClassName).toContain('text-3xl');
+      expect(homeClassName).toContain('text-2xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 animate-bounce hover:text-pink-200');
     });
   });
 
@@ -89,7 +89,7 @@ describe('Navbar utility functions', () => {
     });
 
     it('sets content to none for unexpected roles', async () => {
-      
+
       (AuthService.getRole as jest.Mock).mockResolvedValue(right('UnknownRole' as unknown as UserTypes)); // Simulate unexpected role
 
       const setUserBasedContent = jest.fn();

@@ -30,7 +30,7 @@ const ForgotPasswordForm: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-stone-200">
             <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Recover Password</h2>
 

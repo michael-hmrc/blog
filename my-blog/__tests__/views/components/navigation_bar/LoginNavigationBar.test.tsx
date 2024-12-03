@@ -35,7 +35,7 @@ describe('LoginNavigationbar', () => {
     // Check if the "Login" link has the active class
     const loginLink = screen.getByText('Login');
     expect(loginLink).toHaveClass(
-      'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-pink-300 animate-bounce text-xl'
+      'text-xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 animate-bounce hover:text-pink-200'
     );
   });
 
@@ -76,7 +76,7 @@ describe('LoginNavigationbar', () => {
     // Ensure the Create Account link has the active class
     const createAccountLink = screen.getByText('Create Account');
     expect(createAccountLink).toHaveClass(
-      'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-pink-300 animate-bounce text-xl'
+      'text-xl text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 animate-bounce hover:text-pink-200'
     );
 
     // Ensure other links do not have the active class

@@ -50,7 +50,7 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen font-nunito bg-gradient-to-r from-green-100 from-10% to-blue-300">
-      <Navbar page={NavbarPages.Contact} />
+      {/* <Navbar page={NavbarPages.Contact} /> */}
 
       <Spacer size='p-10' />
 

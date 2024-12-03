@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import BlogPostConnector from '../../connectors/BlogPostConnector';
 import { PostData } from '../../models/PostData';
-import { useParams } from 'react-router-dom';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -37,7 +37,7 @@ const useFetchPost = (postId: string) => {
 };
 
 const useEditPost = (postId: string, onSuccess: (data: PostData) => void) => {
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

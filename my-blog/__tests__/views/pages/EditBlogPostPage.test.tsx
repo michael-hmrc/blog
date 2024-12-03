@@ -13,12 +13,6 @@ describe('EditBlogPost Component', () => {
     jest.clearAllMocks();
   });
 
-  it('should render the Navbar component', () => {
-    render(<EditBlogPostPage />);
-    const navbar = screen.getByTestId('navbar');
-    expect(navbar).toBeInTheDocument();
-  });
-
   it('should render the H1 title with the correct message', () => {
     render(<EditBlogPostPage />);
     const title = screen.getByRole('heading', { name: /Edit a blog post/i });

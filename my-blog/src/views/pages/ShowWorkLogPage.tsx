@@ -48,7 +48,7 @@ const ShowWorkLogPage: React.FC<WorkLogPageProps> = ({ worklogs, errorMessage })
   return (
     <UserRoleProvider>
       <div className="flex flex-col min-h-screen font-nunito bg-gradient-to-r from-pink-100 via-purple-200 to-blue-200">
-        <Navbar page={NavbarPages.Worklog} />
+        {/* <Navbar page={NavbarPages.Worklog} /> */}
         <Spacer size={"p-20"} />
 
         <div className="flex flex-col flex-grow container mx-auto">

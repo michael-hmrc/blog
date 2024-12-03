@@ -11,22 +11,15 @@ import 'react-lazy-load-image-component/src/effects/opacity.css';
 import darkness_devil from '../../../assets/darkness_devil.jpeg';
 import golden_sperm from '../../../assets/golden-transformed.jpeg';
 import pochita from '../../../assets/pochita.jpg';
-import AssetsNavigationBar from '../../components/navigation_bar/AssetsNavigationBar';
+import Spacer from '../../components/Spacer';
 
 const Images: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen font-nunito bg-gray-100">
-      <AssetsNavigationBar />
+    <div className="flex flex-col min-h-screen font-nunito bg-stone-200">
+      <Spacer size='pb-20' />
       <div className="flex-grow container mx-auto p-4">
-        <h1 className="text-4xl font-bold mb-4">Images</h1>
-        <div className="flex flex-wrap justify-center items-start bg-white p-4">
-
-          {/* <div className="w-full md:w-1/2 lg:w-1/3 p-2">
-            <img src={pochita} alt="Example 1" className="w-full h-auto rounded-lg shadow-lg" />
-          </div>
-          <div className="w-full md:w-1/2 lg:w-1/3 p-2">
-            <img src={darkness_devil} alt="Example 2" className="w-full h-auto rounded-lg shadow-lg" />
-          </div> */}
+        <Spacer size='pb-20' />
+        <div className="flex flex-wrap justify-center items-start bg-slate-100/85 p-4">
 
           <div className="w-full md:w-1/2 lg:w-1/3 p-2">
             <LazyLoadImage

@@ -1,6 +1,6 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 const Logout: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -45,15 +45,14 @@ const Logout: React.FC = () => {
 
     //   {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 
-      <button
-        onClick={handleLogout}
-        disabled={loading}
-        className={`bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors ${
-          loading ? 'opacity-50 cursor-not-allowed' : ''
+    <button
+      onClick={handleLogout}
+      disabled={loading}
+      className={`bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''
         }`}
-      >
-        {loading ? 'Logging out...' : 'Log Out'}
-      </button>
+    >
+      {loading ? 'Logging out...' : 'Log Out'}
+    </button>
     // </div>
   );
 };

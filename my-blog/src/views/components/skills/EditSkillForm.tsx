@@ -17,6 +17,7 @@ const EditSkillPage: React.FC = () => {
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const maxSkillNameLength = 100;
+    const maxSkillIdLength = 50;
     const maxContentLength = 400;
 
     const { skill_id } = useParams<{ skill_id: string }>();
@@ -76,7 +77,8 @@ const EditSkillPage: React.FC = () => {
         }
     };
 
-    const semainingSkillNameChars = maxSkillNameLength - skillName.length;
+    const remainingSkillNameChars = maxSkillNameLength - skillName.length;
+    const remainingSkillIdChars = maxSkillIdLength - sqlSkillId.length;
     const remainingContentChars = maxContentLength - content.length;
 
     return (
@@ -100,9 +102,27 @@ const EditSkillPage: React.FC = () => {
                         />
                     </label>
                     <p className="text-gray-600 text-sm">
-                        {semainingSkillNameChars} characters remaining
+                        {remainingSkillNameChars} characters remaining
                     </p>
                 </div>
+
+                <div className="mb-4">
+                    <label className="block mb-2">
+                        Skill Id:
+                        <input
+                            type="text"
+                            value={sqlSkillId}
+                            onChange={(e) => setSqlSkillId(e.target.value)}
+                            className="w-full border border-gray-300 rounded p-2"
+                            maxLength={maxSkillIdLength}
+                            disabled={isLoading}
+                        />
+                    </label>
+                    <p className="text-gray-600 text-sm">
+                        {remainingSkillIdChars} characters remaining
+                    </p>
+                </div>
+
                 <div className="mt-4 mb-4">
                     <label className="block mb-2">
                         Content:

@@ -71,10 +71,9 @@ describe('BlogPostPage', () => {
     });
   });
 
-  it('renders the Navbar and Copyright', () => {
+  it('renders the Copyright', () => {
 
     render(<BlogPostPage post={none} loading={some(false)} errorMessage={none} />);
-    expect(screen.getByText('Navbar')).toBeInTheDocument();
     expect(screen.getByText('Copyright')).toBeInTheDocument();
   });
 

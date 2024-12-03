@@ -27,10 +27,6 @@ const BlogPostPage: React.FC<BlogPostPageProps> = ({ post, loading, errorMessage
     <UserRoleProvider>
       <div className="font-nunito min-h-screen bg-gray-100 flex flex-col">
 
-        {/* <header className="bg-celadon-600 text-raisin-black py-4"> */}
-        <Navbar />
-        {/* </header> */}
-
         <main className="container mx-auto p-4 flex-grow max-w-4xl px-8">
           <div className="flex flex-col space-y-4">
             <RenderBlogPost post={post} loading={loading} errorMessage={errorMessage} />

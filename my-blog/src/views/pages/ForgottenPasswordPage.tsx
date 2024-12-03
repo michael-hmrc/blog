@@ -7,7 +7,7 @@ import ForgottenPasswordForm from '../forms/ForgottenPasswordForm';
 
 const ForgottenPasswordPage: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen font-nunito bg-gray-100">
+    <div className="flex flex-col min-h-screen font-nunito bg-stone-200">
       <LoginNavigationbar page={LoginNavbarPages.ForgottenPassword} />
       <div className="flex-grow container mx-auto p-2">
         <ForgottenPasswordForm />

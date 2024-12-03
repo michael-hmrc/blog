@@ -19,12 +19,6 @@ describe('TermsOfService Component', () => {
     jest.clearAllMocks();
   });
 
-  it('should render the Navbar component', () => {
-    render(<TermsOfService />);
-    const navbar = screen.getByTestId('navbar');
-    expect(navbar).toBeInTheDocument();
-  });
-
   it('should render the H1 title with "Terms Of Service"', () => {
     render(<TermsOfService />);
     const title = screen.getByRole('heading', { name: /Terms Of Service/i });

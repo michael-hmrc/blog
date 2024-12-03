@@ -4,14 +4,6 @@ import { default as UserTypes } from '../models/ADTs/UserType';
 import AuthService from '../service/AuthService';
 import UserTypeErrors from '../models/ADTs/UserTypeErrors';
 
-
-// interface HandleUserType<T> {
-//     viewer: () => T;
-//     admin: () => T;
-//     notLoggedIn: () => T;
-//     default: () => T;
-// }
-
 const handleUserRole = async () => {
 
     const result: Either<UserTypeErrors, UserTypes> = await AuthService.getRole();
